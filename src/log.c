@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Maximum length of a buffer so we try to avoid polluting logs with garbage.
 #define BUFFER_LOG_MAX 4096
-#define EXCEPTION_MAXCOUNT 0x10000
+#define EXCEPTION_MAXCOUNT 0x50000
 
 static CRITICAL_SECTION g_mutex;
 static uint32_t g_starttick;

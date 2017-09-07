@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <tlhelp32.h>
 #include <shlwapi.h>
+#include <psapi.h>
 #include "../inc/ntapi.h"
 
 #define INJECT_NONE 0
@@ -38,6 +39,7 @@ typedef struct _dump_t {
     uint32_t state;
     uint32_t type;
     uint32_t protect;
+    char filename[32];
 } dump_t;
 
 static int verbose = 0;
@@ -445,11 +447,12 @@ uint32_t pid_from_process_name(const wchar_t *process_name)
 }
 
 int dump(uint32_t pid, const wchar_t *filepath,
-    uintptr_t addr, uint32_t length)
+	uintptr_t addr, uint32_t length)
 {
     SYSTEM_INFO si; MEMORY_BASIC_INFORMATION mbi; DWORD written_bytes;
     HANDLE process_handle, file_handle; DWORD_PTR read_bytes;
     uint8_t buf[0x1000]; dump_t d;
+    char *filename = NULL;
 
     GetSystemInfo(&si);
 
@@ -474,6 +477,22 @@ int dump(uint32_t pid, const wchar_t *filepath,
             ptr += mbi.RegionSize;
             continue;
         }
+
+		char full_module_filename[MAX_PATH] = { 0 };
+
+		if (GetMappedFileNameA(process_handle, ptr, full_module_filename, sizeof(full_module_filename)))
+		{
+			filename = strlwr(strrchr(full_module_filename, '\\'));
+			*filename = '\0';
+			filename++;
+		}
+
+		// Add code here ( checking if add
+		memset(d.filename, 0, sizeof(d.filename));
+		if (filename)
+		{
+			strncpy(d.filename, filename, sizeof(d.filename));
+		}
 
         d.addr = (uintptr_t) ptr;
         d.size = mbi.RegionSize;

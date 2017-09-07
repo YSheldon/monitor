@@ -117,7 +117,7 @@ static int determine_pe_file(const wchar_t *filepath)
         error("Error opening filepath");
     }
 
-    static uint8_t buf[0x1000]; DWORD size; LARGE_INTEGER li;
+    static uint32_t buf[0x20000]; DWORD size; LARGE_INTEGER li;
 
     GetFileSizeEx(file_handle, &li);
     ReadFile(file_handle, buf, sizeof(buf), &size, NULL);

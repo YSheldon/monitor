@@ -706,6 +706,7 @@ static void bson_append64( bson *b, const void *data ) {
 int bson_ensure_space( bson *b, const size_t bytesNeeded ) {
     size_t pos = _bson_position(b);
     char *orig = b->data;
+    char *p = 0;
     int new_size;
 
     if ( pos + bytesNeeded <= (size_t) b->dataSize )
@@ -715,7 +716,7 @@ int bson_ensure_space( bson *b, const size_t bytesNeeded ) {
 
     if( new_size < b->dataSize ) {
         if( ( b->dataSize + bytesNeeded ) < INT_MAX )
-            new_size = INT_MAX;
+            new_size = 0x01000000;
         else {
             b->err = BSON_SIZE_OVERFLOW;
             return BSON_ERROR;
@@ -727,9 +728,13 @@ int bson_ensure_space( bson *b, const size_t bytesNeeded ) {
         return BSON_ERROR;
     }
 
-    b->data = bson_realloc( b->data, new_size );
-    if ( !b->data )
-        bson_fatal_msg( !!b->data, "realloc() failed" );
+    p = bson_realloc( b->data, new_size );
+    if ( !p ) {
+        bson_fatal_msg( !!p, "realloc() failed" );
+        new_size = (b->data + b->dataSize) - b->cur;
+    }
+    else
+        b->data = p;
 
     b->dataSize = new_size;
     b->cur += b->data - orig;
@@ -1134,7 +1139,7 @@ void bson_fatal_msg( int ok , const char *msg ) {
     }
 #ifndef R_SAFETY_NET
     bson_errprintf( "error: %s\n" , msg );
-    exit( -5 );
+    //exit( -5 );
 #endif
 }
 
