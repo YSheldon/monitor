@@ -502,7 +502,7 @@ Logging::
     i heap_dep_bypass exploit_makes_heap_executable(ProcessHandle, orig_base_address, NewAccessProtection)
     i process_identifier pid_from_process_handle(ProcessHandle)
 
-Middle:
+Middle::
 
 	// This is first part of the implementation to tackle cuckoo's usermode hook removal by malware
 	if (ProcessHandle == GetCurrentProcess())
