@@ -90,7 +90,6 @@ void monitor_init(HMODULE module_handle)
 	// This is the second part of the UM hook protection
 	// Register our exception handler
 	register_veh();
-  }
 }
 
 void monitor_hook(const char *library, void *module_handle)

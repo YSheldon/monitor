@@ -1116,40 +1116,46 @@ static LONG WINAPI vector_handler_skip( EXCEPTION_POINTERS *ExceptionInfo)
                     MEMORY_BASIC_INFORMATION_CROSS mbi;
                     BOOLEAN skipped = FALSE;
                     void *write_to_address = NULL;
+		    char *temp_insn = strchr(insn, ',');
+		    *temp_insn = '\0';
+                    
+                    if (!strchr(insn, '[') && !strchr(insn, ']'))
+			// Bail out
+			break;
 
                     memset(&mbi, 0, sizeof(mbi));
 
-                    if (strstr(insn, "[eax],") || strstr(insn, "[rax],"))
+                    if (strstr(insn, "eax") || strstr(insn, "rax"))
                         #if __x86_64__
                         write_to_address = (void *)context->Rax;
                         #else
                         write_to_address = (void *)context->Eax;
                         #endif
-                    else if (strstr(insn, "[ebx],") || strstr(insn, "[rbx],"))
+                    else if (strstr(insn, "ebx") || strstr(insn, "rbx"))
                         #if __x86_64__
                         write_to_address = (void *)context->Rbx;
                         #else
                         write_to_address = (void *)context->Ebx;
                         #endif
-                    else if (strstr(insn, "[ecx],") || strstr(insn, "[rcx],"))
+                    else if (strstr(insn, "ecx") || strstr(insn, "rcx"))
                         #if __x86_64__
                         write_to_address = (void *)context->Rcx;
                         #else
                         write_to_address = (void *)context->Ecx;
                         #endif
-                    else if (strstr(insn, "[edx],") || strstr(insn, "[rdx],"))
+                    else if (strstr(insn, "edx") || strstr(insn, "rdx"))
                         #if __x86_64__
                         write_to_address = (void *)context->Rdx;
                         #else
                         write_to_address = (void *)context->Edx;
                         #endif
-                    else if (strstr(insn, "[esi],") || strstr(insn, "[rsi],"))
+                    else if (strstr(insn, "esi") || strstr(insn, "rsi"))
                         #if __x86_64__
                         write_to_address = (void *)context->Rsi;
                         #else
                         write_to_address = (void *)context->Esi;
                         #endif
-                    else if (strstr(insn, "[edi],") || strstr(insn, "[rdi],"))
+                    else if (strstr(insn, "edi") || strstr(insn, "rdi"))
                         #if __x86_64__
                         write_to_address = (void *)context->Rdi;
                         #else
