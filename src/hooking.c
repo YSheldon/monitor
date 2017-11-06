@@ -1105,10 +1105,13 @@ static LONG WINAPI vector_handler_skip( EXCEPTION_POINTERS *ExceptionInfo)
                 copy_return();
 
             // TODO: We should cover all the MOV opcode instructions
-			// F3 A4: repe movsb byte ptr es:[edi], byte ptr [esi]
+            // F3 A4: repe movsb byte ptr es:[edi], byte ptr [esi]
+            // F0 0F B0/B1: lock cmpxchg [mem], reg
+            // 86/87 : xchg [mem], reg
             uint8_t *target = (uint8_t*)pc;
-            if (*target == 0xC6 || *target == 0xC7 || *target == 0x89 || *target == 0xF3 )
-            {
+            if (*target == 0xC6 || *target == 0xC7 || *target == 0xF3 || 
+                *target == 0x86 || *target == 0x87 || *target == 0x88 || *target == 0x89 ||
+               (*target == 0xF0 && *(target+1) == 0x0F && (*(target+2) == 0xB0 || *(target+2) == 0xB1)))
                 // Determine if the AV faulty instruction is related to UM hooks bypass (ie: restore the UM hook by checking the destination address)
                 char insn[DISASM_BUFSIZ];
                 if (disasm((void*)pc, insn) == 0)
@@ -1116,12 +1119,12 @@ static LONG WINAPI vector_handler_skip( EXCEPTION_POINTERS *ExceptionInfo)
                     MEMORY_BASIC_INFORMATION_CROSS mbi;
                     BOOLEAN skipped = FALSE;
                     void *write_to_address = NULL;
-		    char *temp_insn = strchr(insn, ',');
-		    *temp_insn = '\0';
+                    char *temp_insn = strchr(insn, ',');
+                    *temp_insn = '\0';
                     
                     if (!strchr(insn, '[') && !strchr(insn, ']'))
-			// Bail out
-			break;
+                        // Bail out
+                        break;
 
                     memset(&mbi, 0, sizeof(mbi));
 
