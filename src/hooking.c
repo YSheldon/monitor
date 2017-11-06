@@ -1112,6 +1112,7 @@ static LONG WINAPI vector_handler_skip( EXCEPTION_POINTERS *ExceptionInfo)
             if (*target == 0xC6 || *target == 0xC7 || *target == 0xF3 || 
                 *target == 0x86 || *target == 0x87 || *target == 0x88 || *target == 0x89 ||
                (*target == 0xF0 && *(target+1) == 0x0F && (*(target+2) == 0xB0 || *(target+2) == 0xB1)))
+            {
                 // Determine if the AV faulty instruction is related to UM hooks bypass (ie: restore the UM hook by checking the destination address)
                 char insn[DISASM_BUFSIZ];
                 if (disasm((void*)pc, insn) == 0)
